@@ -1,0 +1,115 @@
+name: Nexus Upload
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: Build and verify only; do not upload to Nexus
+        type: boolean
+        default: true
+      confirm_version:
+        description: For a real upload, type the exact VERSION value
+        type: string
+        required: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: nexus-upload
+  cancel-in-progress: false
+
+jobs:
+  build:
+    if: >-
+      (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') && !github.event.deleted) ||
+      (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main')
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    outputs:
+      version: ${{ steps.package.outputs.version }}
+      filename: ${{ steps.package.outputs.filename }}
+      sha256: ${{ steps.package.outputs.sha256 }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: requirements-dev.txt
+      - run: python -m pip install -r requirements-dev.txt
+      - name: Run Lua And Release Tests
+        run: |
+          python tests/run_tests.py
+          python -m unittest discover -s tests -p test_release.py -v
+      - name: Build Verified ZIP
+        run: python tools/package_mod.py
+      - name: Confirm Version And Record Package
+        id: package
+        env:
+          NEXUS_DRY_RUN: ${{ inputs.dry_run }}
+          NEXUS_CONFIRM_VERSION: ${{ inputs.confirm_version }}
+        run: python tools/prepare_nexus_upload.py
+      - name: Retain The Exact Build
+        uses: actions/upload-artifact@v7
+        with:
+          name: nexus-package
+          path: dist/${{ steps.package.outputs.filename }}
+          if-no-files-found: error
+          retention-days: 14
+
+  publish:
+    needs: build
+    if: >-
+      (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') && !github.event.deleted) ||
+      (github.event_name == 'workflow_dispatch' && !inputs.dry_run && github.ref == 'refs/heads/main')
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    environment: nexus
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: nexus-package
+          path: dist
+      - name: Validate Configuration And Downloaded ZIP
+        env:
+          NEXUS_FILE_ID: ${{ vars.NEXUSMODS_FILE_ID }}
+          NEXUS_API_KEY: ${{ secrets.NEXUSMODS_API_KEY }}
+          ZIP_FILENAME: ${{ needs.build.outputs.filename }}
+          ZIP_SHA256: ${{ needs.build.outputs.sha256 }}
+        run: |
+          python - <<'PY'
+          import hashlib, os, re
+          from pathlib import Path
+          if not re.fullmatch(r'[1-9][0-9]*', os.environ['NEXUS_FILE_ID']):
+              raise SystemExit('Set NEXUSMODS_FILE_ID to the existing Nexus file ID.')
+          if not os.environ['NEXUS_API_KEY'].strip():
+              raise SystemExit('Set the NEXUSMODS_API_KEY environment secret.')
+          filename = os.environ['ZIP_FILENAME']
+          if not re.fullmatch(r'MemorialLedger-[0-9]+\.[0-9]+\.[0-9]+\.zip', filename):
+              raise SystemExit('Unexpected ZIP filename.')
+          archive = Path('dist') / filename
+          if hashlib.sha256(archive.read_bytes()).hexdigest() != os.environ['ZIP_SHA256']:
+              raise SystemExit('Downloaded ZIP does not match the verified build.')
+          PY
+      - name: Upload New File Version
+        id: nexus
+        uses: Nexus-Mods/upload-action@c96019556046053aa26044b44396cd38929daf23
+        with:
+          api_key: ${{ secrets.NEXUSMODS_API_KEY }}
+          file_id: ${{ vars.NEXUSMODS_FILE_ID }}
+          filename: dist/${{ needs.build.outputs.filename }}
+          version: ${{ needs.build.outputs.version }}
+          display_name: Memorial Ledger ${{ needs.build.outputs.version }}
+          description: OpenMW Lua mod. Requires compatible OpenMW APIs; see the mod page for compatibility and installation.
+          category: main
+          archive_existing_version: 'false'
+          primary_mod_manager_download: 'false'
+          allow_mod_manager_download: 'true'
+          show_requirements_pop_up: 'true'
+          update_mod_version: 'true'

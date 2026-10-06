@@ -1,0 +1,3 @@
+GLOBAL: scripts/memorial_ledger/global.lua
+MENU: scripts/memorial_ledger/menu.lua
+PLAYER: scripts/memorial_ledger/player.lua

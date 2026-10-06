@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Memorial Ledger | Documentation</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f6f8f7;color:#202724;font:16px/1.6 system-ui,sans-serif;letter-spacing:0}
+header{background:white;border-bottom:1px solid #c9d4cf}header>div,main,footer{max-width:980px;margin:auto;padding:28px}
+section{padding:24px 0;border-bottom:1px solid #c9d4cf}h1{font-size:32px;margin:0}h2{font-size:23px}a{color:#096952}
+img{display:block;width:100%;height:auto;border:1px solid #8a9690}figure{margin:20px 0}figcaption{font-size:14px;color:#526259}
+pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#e8efeb;padding:16px}.beta{color:#9a3030}code{font:14px Consolas,monospace}
+@media(max-width:600px){header>div,main,footer{padding:18px}h1{font-size:28px}}
+</style></head>
+<body><header><div><h1>Memorial Ledger</h1><p>A save-specific, observational ledger for encountered dead NPCs.</p>
+<p class="beta">0.2.5 beta: approved ledger and settings layouts implemented, with automatic note saving on exit and default M key.</p></div></header>
+<main>
+<section><h2>In-Game Behavior</h2>
+<p>Dead NPCs in active cells are recorded passively, without touching or looting them. The mod never removes bodies, reads inventories, adds corpse interaction prompts, or changes vanilla corpse behavior. All interaction happens in the ledger panel.</p>
+<figure><img src="memorial-ledger-panel.png" width="1024" height="768" alt="Memorial ledger with NPC name search and entries showing names and locations"><figcaption>Fictional entries rendered from the Lua panel layout using API doubles, not an in-game screenshot. Native fonts and template spacing may differ.</figcaption></figure>
+<figure><img src="memorial-ledger-detail.png" width="1024" height="768" alt="Memorial detail entry with Place of Death, Found on, and a bordered Memorial Note field"><figcaption>The approved detail layout; notes save when leaving the entry.</figcaption></figure>
+<p>Press M by default, or change the binding under Settings &gt; Scripts &gt; Memorial Ledger. Existing custom bindings are preserved. Search by NPC name using case-insensitive partial matching; page through entries; select a row to read Place of Death and Found on, or write a Memorial Note. Notes save on Back or Close, without a Save Note button.</p>
+<p>Names, locations, first-observed times, and notes persist per save. The mod does not assume you killed an NPC or that first observation was the time of death. Creatures and players are excluded.</p>
+</section>
+<section><h2>Memorial Entries</h2>
+<p>The panel presents names, locations, discovery dates, and personal notes. Technical status labels, reference IDs, and the state-filter dropdown have been removed. Entries remain when bodies disappear or their cells unload.</p>
+<p>No Keep body control, cleanup timer, or safety-bypass option exists. Vanilla OpenMW and other mods retain responsibility for corpse disposal.</p>
+</section>
+<section><h2>Install</h2>
+<p>Use the import-ready ZIP attached to a GitHub release when available, or run the packaging tool from a source checkout. <a href="../Memorial%20Ledger/README.md">Full documentation</a></p>
+<p>Targets OpenMW builds with MWUI, Settings, UI, and input-binding APIs, developed against current 0.52 development documentation. NPC persistence flags are no longer required. Classic Morrowind/MWSE is unsupported.</p>
+<p>Add your extracted directory as a data path and enable the script content. Example installation:</p>
+<pre><code>data="D:/Games/OpenMW/Mods/MemorialLedger"
+content=MemorialLedger.omwscripts</code></pre>
+<p>Updating from 0.1.0 preserves entries and notes but stops pending cleanup and removes body controls. Bodies already removed by the old version cannot be restored by updating. No installed profiles or saves have been modified by this build.</p>
+</section>
+<section><h2>Settings</h2><p>Controls contains Ledger Key, its description, and a right-aligned binding button. Reset restores M; Escape cancels recording and Delete/Backspace clears the binding. Ledger Actions contains the separate Open command, which opens the ledger after Options closes. Descriptions are retained and the binding label is not duplicated.</p>
+<figure><img src="memorial-ledger-settings.png" width="1280" height="900" alt="Settings with descriptions, Ledger Key under Controls, and a separate Open command under Ledger Actions"><figcaption>Actual Lua settings layout rendered using API doubles. The native Options frame and fonts are supplied by OpenMW; this is not an engine screenshot.</figcaption></figure></section>
+<section><h2>Verification</h2><p>Sixteen tests execute real Lua 5.1 with API doubles that forbid inventory access and deletion. Checks include default M binding, preserving user bindings, note persistence, name search, reference tracking, save migration, both panel layouts, compact resizing, Menu-context settings registration, rebinding, cancellation, clearing, resetting, and Open action dispatch.</p>
+<p>Native rendering, input binding, and reference serialization still need the <a href="../Memorial%20Ledger/ACCEPTANCE.md">in-game acceptance checklist</a>. Test on a disposable save first.</p></section>
+</main><footer>Memorial Ledger 0.2.5 &middot; Updated 7 October 2026</footer></body></html>

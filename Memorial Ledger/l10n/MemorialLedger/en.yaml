@@ -1,0 +1,13 @@
+PageName: Memorial Ledger
+PageDescription: A personal record of those found dead during your travels. Keep their names, places of death, and your own memorial notes. Bodies and belongings remain untouched.
+Controls: Controls
+OpenLedger: Open memorial ledger
+OpenLedgerDescription: Open or close the memorial ledger during gameplay.
+LedgerKey: Ledger Key
+LedgerKeyDescription: 'Open or close the ledger during gameplay. Default key: M.'
+LedgerActions: Ledger Actions
+OpenLedgerAction: Open Ledger
+OpenLedgerActionDescription: Open the ledger after closing the Options menu.
+Open: Open
+Reset: Reset
+Unbound: None
