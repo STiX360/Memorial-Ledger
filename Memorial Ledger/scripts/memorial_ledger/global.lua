@@ -22,8 +22,8 @@ local function location(cell)
     if not cell then return 'Unknown location' end
     local name = cell.displayName
     if not name or name == '' then name = cell.name end
-    if not name or name == '' then name = cell.region or 'Wilderness' end
-    if cell.isExterior then name = name .. string.format(' [%d, %d]', cell.gridX, cell.gridY) end
+    if not name or name == '' then name = cell.region end
+    if not name or name == '' then name = 'Wilderness' end
     return name
 end
 

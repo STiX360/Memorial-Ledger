@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.2.6
+
+- Removed grid coordinates from visible place names in the ledger list and details.
+- Older saved entries display clean place names without altering notes or tracking.
+- Retained named-cell and region fallbacks for exterior locations.
+- Added regression coverage for new locations and old saved coordinate suffixes.
+
 ## 0.2.5
 
 - Implemented the approved settings layout with descriptions and aligned controls.

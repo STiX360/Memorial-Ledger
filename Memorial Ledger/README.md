@@ -1,4 +1,4 @@
-# Memorial Ledger 0.2.5
+# Memorial Ledger 0.2.6
 
 An observational OpenMW Lua mod. All interaction is in the ledger, never on
 corpses. No cleanup, corpse activation hooks, inventory access, or body controls.
@@ -8,8 +8,15 @@ No record overrides or custom art assets.
 
 Targets builds with MWUI, Settings, UI, and input-binding APIs (developed against
 current OpenMW 0.52 development APIs). Persistence flags are no longer required.
-Native engine compatibility remains unverified; test on a disposable save.
-Classic Morrowind/MWSE is not supported.
+The UI has been observed in-game; broader engine compatibility and save/load
+testing remain ongoing. Test on a disposable save. Classic Morrowind/MWSE is
+not supported, including when launched through Mod Organizer 2.
+
+### Manual OpenMW Installation
+
+Close OpenMW. Extract the import-ready mod ZIP to its own directory, with
+`MemorialLedger.omwscripts`, `scripts`, and `l10n` directly inside it. Add the
+following to the active profile's `openmw.cfg`, retaining existing entries.
 
 Add the extracted directory as a data path and enable the script content:
 
@@ -18,12 +25,34 @@ data="D:/Games/OpenMW/Mods/MemorialLedger"
 content=MemorialLedger.omwscripts
 ```
 
-Adjust the path to your install location. The default key is M. Change Ledger
-Key under Settings > Scripts > Memorial Ledger > Controls if M conflicts
+Adjust the path to your install location. Ensure the manifest is enabled in
+OpenMW's content list, then restart OpenMW. Configuration locations are listed
+in the [OpenMW paths guide](https://openmw.readthedocs.io/en/latest/reference/modding/paths.html).
+
+### Mod Organizer 2 Installation
+
+Right-click MO2's left-hand mod list and choose **Install mod...**. In **Choose
+Mod**, select the latest `MemorialLedger-<version>.zip`, click **Open**, and finish
+installation. Tick **MemorialLedger** in the left-hand list (or your chosen mod name).
+With your OpenMW integration's dummy-ESP support enabled, installation generates
+**MemorialLedger.omwscripts.esp** automatically. Tick it in the right-hand **Plugins** tab;
+the integration enables the real `MemorialLedger.omwscripts` file. Do not create
+an ESP manually. If it is missing, check Dummy ESP in
+[OpenMW Player's Options](https://github.com/Kezyma/ModOrganizer-Plugins/blob/main/docs/openmwplayer.md).
+With an exporter, export
+and verify the mod's `data=` path and `.omwscripts` content entry survive.
+Launch `openmw.exe` using the configured profile, not `Morrowind.exe`.
+
+### Default Key And Settings
+
+The default key is **M**. Change Ledger
+Key under **Options > Scripts > Memorial Ledger > Controls** if M conflicts
 with another mod. Existing bindings and later deliberate unbinding are preserved.
 Click the key button and press a new key; Escape cancels, Delete/Backspace clears
 the binding, and Reset restores M. Mouse and controller buttons are also accepted.
 Alternatively click Open under Ledger Actions and close Settings to return to gameplay.
+If the settings page is missing, check the active data/content configuration
+and `openmw.log` for script-loading errors. If only M fails, check the saved binding.
 Console fallback (close the console after running):
 
 ```lua
@@ -40,6 +69,8 @@ bodies you did not kill and bodies not necessarily visible on screen. Creatures
 and players are excluded.
 
 Entries display name, location, discovery time, and your memorial note.
+Locations use place names or regions without grid coordinates. Older saved
+entries also hide the previous coordinate suffix in the panel.
 Time is elapsed game days/hours, not a claimed death time or calendar date.
 NPC name search is case-insensitive and matches partial names. Pagination
 makes the ledger browsable; no technical status labels or filters are shown. Click
@@ -66,6 +97,9 @@ by an earlier version; recovery requires a pre-cleanup save.
 
 ## Verification
 
+0.2.6 removes grid coordinates from visible place names, including older saved
+entries, while preserving notes and reference tracking. Eighteen Lua tests pass.
+
 0.2.5 implements the approved settings layout using a Menu-context page, with
 descriptions beneath labels and right-aligned controls. Controls contains Ledger
 Key and Reset; Ledger Actions contains the separate Open command without a
@@ -91,6 +125,7 @@ than a table. Replace the mod files and fully restart OpenMW after upgrading.
 The new binding setting avoids the malformed value persisted by older versions.
 
 Tests execute real Lua 5.1 with doubles forbidding inventory access and deletion.
-Native rendering, binding, reference serialization, and disposal detection still
-need in-game verification; see ACCEPTANCE.md. No game profiles or saves are
+Screenshots demonstrate the ledger and settings UI in-game. Binding persistence,
+reference serialization, and disposal detection still need the full in-game
+checklist; see ACCEPTANCE.md. No game profiles or saves are
 modified by this build.

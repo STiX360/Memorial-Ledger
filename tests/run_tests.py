@@ -182,6 +182,44 @@ class LedgerTests(unittest.TestCase):
             end
         """)
 
+    def test_locations_use_named_places_and_region_fallbacks(self):
+        self.lua.execute("""
+            local cells = {
+                {displayName='Ebonheart',name='Other name',isExterior=true,gridX=2,gridY=-13},
+                {displayName='',name='Vivec, Temple',isExterior=true,gridX=3,gridY=-14},
+                exterior,
+                {name='',region='',isExterior=true},
+                home,
+            }
+            local names = {'Ebonheart','Vivec, Temple','Bitter Coast','Wilderness','Balmora'}
+            for i, cell in ipairs(cells) do
+                local body = corpse('npc'..i); body.cell = cell
+                handlers.onActorActive(body)
+                assert(handlers.onSave().entries[i].location == names[i])
+            end
+        """)
+
+    def test_old_coordinate_suffixes_hidden_without_changing_saved_entries(self):
+        self.lua.execute("""
+            local policy = require('scripts.memorial_ledger.policy')
+            for _, coords in ipairs({'[2, -13]','[-2, 13]','[-2, -13]','[2, 13]'}) do
+                local old = {location='Ebonheart '..coords,note='Remembered'}
+                assert(policy.copyEntry(old).location == 'Ebonheart')
+                assert(old.location == 'Ebonheart '..coords)
+            end
+            assert(policy.copyEntry({location='Interior [Vault]'}).location == 'Interior [Vault]')
+            assert(policy.copyEntry({location='Interior [1,2]'}).location == 'Interior [1,2]')
+            body = corpse('one'); handlers.onActorActive(body)
+            local saved = handlers.onSave(); saved.entries[1].location = 'Vivec, Temple [3, -14]'
+            saved.entries[1].note = 'Remembered'; handlers.onLoad(saved)
+            mod.eventHandlers.MemorialLedgerRequest({player=player,selected=1})
+            handlers.onUpdate(0)
+            local data = player.events[#player.events].data
+            assert(data.rows[1].location == 'Vivec, Temple')
+            assert(data.selected.location == 'Vivec, Temple' and data.selected.note == 'Remembered')
+            assert(handlers.onSave().entries[1].location == 'Vivec, Temple [3, -14]')
+        """)
+
     def test_name_search_only(self):
         self.lua.execute("""
             local policy = require('scripts.memorial_ledger.policy')

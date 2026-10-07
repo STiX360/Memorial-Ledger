@@ -17,7 +17,7 @@ lua.execute("""
     local token = globalEvents[#globalEvents].data.token
     local names = {'Fallen adventurer', 'Ashlander scout', 'Bandit', 'Temple pilgrim', 'Smuggler', 'Dunmer traveler', 'Imperial soldier'}
     local statuses = {'Observed', 'Observed', 'Observed', 'Unavailable', 'Removed', 'Revived', 'Observed'}
-    local places = {'Balmora', 'Ashlands [3, 8]', 'Addamasartus', 'Molag Mar', 'Bitter Coast [-2, -5]', 'West Gash [0, 2]', 'Seyda Neen'}
+    local places = {'Balmora', 'Ashlands', 'Addamasartus', 'Molag Mar', 'Bitter Coast', 'West Gash', 'Seyda Neen'}
     previewRows = {}
     for i=1,7 do previewRows[i]={id=i,name=names[i],location=places[i],status=statuses[i],note='',observedAt=118800} end
     panel.eventHandlers.MemorialLedgerSnapshot({rows=previewRows,total=31,matches=31,page=1,pages=5,token=token})

@@ -11,6 +11,10 @@ end
 function M.copyEntry(entry)
     local copy = {}
     for key, value in pairs(entry) do copy[key] = value end
+    -- Older saves stored exterior grid coordinates in the displayed place name.
+    if type(copy.location) == 'string' then
+        copy.location = copy.location:gsub(' %[%-?%d+, %-?%d+%]$', '')
+    end
     return copy
 end
 

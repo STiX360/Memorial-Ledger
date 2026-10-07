@@ -31,3 +31,7 @@ Native testing is outstanding. Use a disposable save.
     wait for Options to close and must not request a ledger without a loaded game.
 14. Check settings descriptions wrap without clipping at the resolutions above;
     use the native settings scrollbar when the page exceeds the available height.
+15. Record a dead NPC in a named exterior and an unnamed regional cell. Check
+    place names or region names appear without coordinates in both list and details.
+    Load an older save with coordinate suffixes; notes and entries must remain,
+    but coordinates must no longer appear in the panel.
