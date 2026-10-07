@@ -1,4 +1,4 @@
-name: Nexus Upload
+name: Publish Releases
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
     inputs:
       dry_run:
-        description: Build and verify only; do not upload to Nexus
+        description: Build and verify only; do not publish
         type: boolean
         default: true
       confirm_version:
@@ -33,6 +33,7 @@ jobs:
       version: ${{ steps.package.outputs.version }}
       filename: ${{ steps.package.outputs.filename }}
       sha256: ${{ steps.package.outputs.sha256 }}
+      changelog: ${{ steps.package.outputs.changelog }}
     steps:
       - uses: actions/checkout@v7
         with:
@@ -62,6 +63,28 @@ jobs:
           path: dist/${{ steps.package.outputs.filename }}
           if-no-files-found: error
           retention-days: 14
+
+  github-release:
+    needs: build
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') && !github.event.deleted
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@v8
+        with:
+          name: nexus-package
+          path: dist
+      - name: Publish Verified ZIP To GitHub Releases
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_VERSION: ${{ needs.build.outputs.version }}
+          ZIP_SHA256: ${{ needs.build.outputs.sha256 }}
+        run: python tools/publish_github_release.py
 
   publish:
     needs: build
@@ -105,6 +128,9 @@ jobs:
           file_id: ${{ vars.NEXUSMODS_FILE_ID }}
           filename: dist/${{ needs.build.outputs.filename }}
           version: ${{ needs.build.outputs.version }}
+          # API Unique Mod ID from Nexus's Advanced dialog, not page ID 60487.
+          mod_id: '429496790087'
+          changelog: ${{ needs.build.outputs.changelog }}
           display_name: Memorial Ledger ${{ needs.build.outputs.version }}
           description: OpenMW Lua mod. Requires compatible OpenMW APIs; see the mod page for compatibility and installation.
           category: main

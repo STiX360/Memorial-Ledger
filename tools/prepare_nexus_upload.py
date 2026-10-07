@@ -3,6 +3,8 @@ from pathlib import Path
 import hashlib
 import os
 import re
+import uuid
+from release_notes import release_notes
 
 
 def release_inputs(event, ref, dry_run, confirmation):
@@ -27,7 +29,17 @@ def metadata(root, dry_run, confirmation):
     filename = f'MemorialLedger-{version}.zip'
     archive = root / 'dist' / filename
     return {'version': version, 'filename': filename,
-            'sha256': hashlib.sha256(archive.read_bytes()).hexdigest()}
+            'sha256': hashlib.sha256(archive.read_bytes()).hexdigest(),
+            'changelog': release_notes(root, version)}
+
+
+def write_outputs(path, values):
+    with path.open('a', encoding='utf-8', newline='\n') as stream:
+        for key, value in values.items():
+            delimiter = f'output_{uuid.uuid4().hex}'
+            while delimiter in value.splitlines():
+                delimiter = f'output_{uuid.uuid4().hex}'
+            stream.write(f'{key}<<{delimiter}\n{value}\n{delimiter}\n')
 
 
 if __name__ == '__main__':
@@ -40,9 +52,7 @@ if __name__ == '__main__':
     values = metadata(root, dry_run, confirmation)
     output = os.environ.get('GITHUB_OUTPUT')
     if output:
-        with Path(output).open('a', encoding='utf-8') as stream:
-            for key, value in values.items():
-                stream.write(f'{key}={value}\n')
+        write_outputs(Path(output), values)
     print(f"Verified package: {values['filename']}")
     print(f"SHA256: {values['sha256']}")
     print('This command never uploads; the separate workflow publish job handles Nexus.')

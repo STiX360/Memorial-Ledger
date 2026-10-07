@@ -29,19 +29,23 @@ Label API-double previews as previews, never in-game screenshots.
 
 1. Update `VERSION`, both README version references, the documentation page,
    and `CHANGELOG.md` together.
+   The changelog must have exactly one non-empty `## X.Y.Z` entry matching
+   `VERSION`; that entry supplies release notes to GitHub and Nexus.
 2. Run tests, package, and complete the in-game acceptance checklist.
 3. Review `git diff` for personal paths, unrelated files, and accidental assets.
 4. Commit the reviewed changes and push only after choosing the GitHub destination.
 5. Create and push a `v`-prefixed tag matching `VERSION`. This automatically
-   triggers a tested Nexus upload once the Nexus environment is configured.
-6. Create the GitHub release and attach the ZIP from `dist`, not the
-   automatically generated source archive. This does not upload to Nexus again.
+   publishes a GitHub Release with the tested ZIP and independently triggers
+   a Nexus upload once the Nexus environment is configured.
+6. Verify the ZIP appears under Assets on GitHub and check the Nexus file.
+   Versions `0.x.y` are GitHub prereleases; use the releases page for beta mirrors.
 
 The CI workflow only tests and uploads build artifacts. It does not publish
 releases, deploy the documentation website, or push commits.
-The separate Nexus Upload workflow automatically publishes matching version
-tag pushes. Manual dispatch defaults to a dry run and requires version
-confirmation to publish. See the [maintainer Nexus publishing guide](NEXUS-PUBLISHING.md).
+The separate Publish Releases workflow automatically publishes matching version
+tag pushes. Manual dispatch defaults to a dry run; confirmed manual publishing
+is Nexus-only. Rerun only a failed GitHub release job to avoid duplicate Nexus
+uploads. See the [maintainer release publishing guide](NEXUS-PUBLISHING.md).
 
 Workflow actions follow the official documentation for
 [checkout](https://github.com/actions/checkout),

@@ -24,6 +24,8 @@ save first. Automated tests do not prove compatibility with every setup.
 ## Install
 
 Use the import-ready ZIP attached to a GitHub release when one is available.
+[GitHub download mirror](https://github.com/STiX360/Memorial-Ledger/releases)
+includes beta prereleases. Choose the `MemorialLedger-<version>.zip` asset.
 The archive contains `MemorialLedger.omwscripts`, `scripts`, and `l10n` at its
 root. Do not install GitHub's automatically generated source ZIP as a mod.
 
@@ -141,7 +143,7 @@ You do not need development tools, GitHub Actions, or a Nexus API key to use the
 
 ### Development
 
-Requires Python 3.12 and the pinned development dependency:
+Requires Python 3.12 and the pinned development dependencies:
 
 ```sh
 python -m pip install -r requirements-dev.txt
@@ -160,10 +162,16 @@ See the [contributor and maintainer guide](CONTRIBUTING.md) and
 
 ### Nexus Publishing
 
-A version tag push, such as `v0.2.6`, automatically tests, packages, and uploads
-a new version of the existing Nexus file, and updates the Nexus mod's version.
-The tag must match `VERSION`. Ordinary branch pushes do not publish. A manual
-fallback defaults to a dry run. See the [maintainer Nexus publishing guide](NEXUS-PUBLISHING.md)
+A version tag push, such as `v0.2.6`, automatically tests and packages the mod,
+publishes a GitHub Release with the verified ZIP, and independently uploads
+a new version of the existing Nexus file and updates the Nexus mod's version.
+Versions with major version zero are GitHub prereleases; versions starting at
+`1.0.0` are regular releases. Use the releases page as the beta download mirror.
+Both destinations receive the matching version's notes from `CHANGELOG.md`;
+a missing, empty, or duplicate entry blocks publishing.
+The tag must match `VERSION`. Ordinary branch pushes do not publish. The manual
+Nexus fallback defaults to a dry run and never creates a GitHub Release.
+See the [maintainer release publishing guide](NEXUS-PUBLISHING.md)
 for the initial file upload, environment secret, and file ID requirements.
 
 ## License
