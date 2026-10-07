@@ -32,7 +32,7 @@ root. Do not install GitHub's automatically generated source ZIP as a mod.
 ### OpenMW: Manual Installation
 
 1. Close OpenMW and extract the mod ZIP to its own directory, for example
-   `D:/Games/OpenMW/Mods/MemorialLedger`.
+   `./OpenMW/Mods/MemorialLedger`.
 2. Add that directory to your active `openmw.cfg` using the lines below. Keep
    existing data paths and content entries; do not replace the whole configuration.
 3. Ensure `MemorialLedger.omwscripts` is enabled in OpenMW's content list.
